@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700');
+
+* {
+  font-family: 'Nunito', sans-serif;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  align-items: center;
+  /* background: linear-gradient(to right, #927c92, #7684a9, #8180d8, #607D8B); */
+  border-bottom: solid 1px #e0e0e0;
+  box-shadow: 0 1px 5px #e0e0e0;
+  /* color: white; */
+  color: #a983ca;
+  display: flex;
+  font-size: 2em;
+  font-weight: 600;
+  /* height: 120px; */
+  height: 75px;
+}
+
+.title {
+  margin-left: 8%;
+}
+
+.content {
+  flex: auto;
+  overflow-y: auto;
+}
+
+.text {
+  margin: 0 8%;
+}
+
+.subtitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 50px 0 30px 0;
+}
+
+.footer {
+  background: url("./skyline.png");
+  height: 25px;
+}
+
+.doughnutText {
+  color: white;
+} 

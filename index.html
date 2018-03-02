@@ -1,0 +1,36 @@
+<html>
+<head>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body onscroll="print()">
+  <div class="header">
+    <div class="title">
+    Crime in NYC
+   </div>
+   <div class="container" onclick="myFunction(this)">
+      <div class="bar1"></div>
+      <div class="bar2"></div>
+      <div class="bar3"></div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="text">
+      <div class="subtitle">Total crime in the 5 boroughs in 2016</div>
+      <div class="doughnutChart"></div>
+      <div class="subtitle">Crime over time</div>
+      <div class="subtitle">Some fake data</div>
+    </div>
+  </div>
+  <!-- <div class="footer">footer</div> -->
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="./doughnutChart.js"></script>
+  <script>
+    function print() {
+      var previous = window.scrollY;
+      window.addEventListener('scroll', function(){
+        window.scrollY > previous ? console.log('down') : console.log('up');
+        previous = window.scrollY;
+    });    }
+  </script>
+</body>
+</html>
