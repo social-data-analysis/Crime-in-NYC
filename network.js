@@ -29,7 +29,28 @@ var nodes = svgNetwork.selectAll("circle").data(networkData.nodes)
   .attr("r", 10)
   .style("fill", function(d, i) {
     return color[i];
-  });
+  })
+  .call(d3.drag()
+  .on("drag", dragging)
+  .on("end", dragEnded)
+  );
+
+function dragStarted(d) {
+  if (!d3.event.active) force.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+
+function dragging(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+
+function dragEnded(d) {
+  if (!d3.event.active) force.alphaTarget(0); d.fx = null;
+  d.fy = null;
+}
+
 
 force.on("tick", function() {
   edges.attr("x1", function(d) {
