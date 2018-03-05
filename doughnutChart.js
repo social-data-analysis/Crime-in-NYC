@@ -15,40 +15,20 @@ var pie = d3.pie();
 
 var color = ["#8C5B79", "#777DA3", "#49A1B4", "#41BFA4", "#88D57F", "#E2E062"]; //d3.scaleOrdinal(d3.schemeCategory10c);
 
+// Use the pre-processed data from Python script (borough_crimes.py)
+var dataset = [0.24, 0.29, 0.2, 0.22, 0.05];
+
 //Create SVG element
 var svg = d3.select(".doughnutChart")
       .append("svg")
       .attr("width", width)
       .attr("height", height);
 
-// Count the total number of crimes in each of the 5 boroughs in 2016
-d3.csv("./sample_data.csv", function(error, data) {
-  if (error) throw error;
-
-  const boroughs = ["Manhattan", "Brooklyn", "Queens", "The Bronx", "Staten Island"];
-  const boroughsComplaints = boroughs.map(item => 0);
-  data = data.filter(item => item['CMPLNT_FR_DT'].split('/')[2] === '2015'); // keep only complaints from 2016
-  let normalizedValues = [];
-  data.forEach(function(complaint) {
-    if (complaint["BORO_NM"] === "MANHATTAN")
-      boroughsComplaints[0] += 1;
-    else if (complaint["BORO_NM"] === "BROOKLYN")
-      boroughsComplaints[1] += 1;
-    else if (complaint["BORO_NM"] === "QUEENS")
-      boroughsComplaints[2] += 1;
-    else if (complaint["BORO_NM"] === "BRONX")
-      boroughsComplaints[3] += 1;
-    else if (complaint["BORO_NM"] === "STATEN ISLAND")
-       boroughsComplaints[4] += 1;
-  });
-  const sum = boroughsComplaints.reduce((a, b) => a + b);
-  normalizedValues = boroughsComplaints.map(val => val / sum); 
-  console.log(normalizedValues);
-  console.log(boroughsComplaints);
+  const boroughs = ["Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"];
   
   //Set up groups
   var arcs = svg.selectAll("g.arc")
-    .data(pie(normalizedValues))
+    .data(pie(dataset))
     .enter()
     .append("g")
     .attr("class", "arc")
@@ -70,7 +50,7 @@ d3.csv("./sample_data.csv", function(error, data) {
     .attr("fill", "white")
     .attr("font-size", "14px")
     .text(function(d) {
-    return Number(d.value).toFixed(2) * 100 + "%";
+    return Math.round(parseFloat(d.value) * 100) + "%";
     });
 
   // Add legend
@@ -99,4 +79,3 @@ legend.append("text")
   .attr("x", legendRectSize + legendSpacing)              
   .attr("y", legendRectSize - legendSpacing + 6)              
   .text(function(d) { return d; });                       
-})
