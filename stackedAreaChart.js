@@ -1,70 +1,149 @@
+//Width and height
+var w = 800;
+var h = 500;
+var padding = 20;
 
-var svg = d3.select("svg"),
-margin = {top: 20, right: 20, bottom: 30, left: 50},
-width = svg.attr("width") - margin.left - margin.right,
-height = svg.attr("height") - margin.top - margin.bottom;
+var dataset, xScale, yScale, xAxis, yAxis, area;  //Empty, for now
 
-var parseDate = d3.timeParse("%Y %b %d");
+var color = ["#8C5B79", "#777DA3", "#49A1B4", "#41BFA4", "#88D57F", "#E2E062"]; //d3.scaleOrdinal(d3.schemeCategory10c);
 
-var x = d3.scaleTime().range([0, width]),
-y = d3.scaleLinear().range([height, 0]),
-z = d3.scaleOrdinal(d3.schemeCategory10);
+//For converting strings to Dates
+var parseTime = d3.timeParse("%b");
+//For converting Dates to strings
+var formatTime = d3.timeFormat("%b");
 
-var stack = d3.stack();
-
-var area = d3.area()
-.x(function(d, i) { return x(d.data.date); })
-.y0(function(d) { return y(d[0]); })
-.y1(function(d) { return y(d[1]); });
-
-var g = svg.append("g")
-.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-// Data grabbed from Python
-// 5 most common crime types in Manhattan in 2016
-var mostCommonCrimes = ['Larceny', 'Harassment', 'Assault', 'Aggravated harassment', 'Criminal Mischief'];
-// The total number of occurrences for each of these 5 types in each month of 2016
-
-d3.tsv("data.tsv", type, function(error, data) {
-if (error) throw error;
-
-var keys = data.columns.slice(1);
-
-x.domain(d3.extent(data, function(d) { return d.date; }));
-z.domain(keys);
-stack.keys(keys);
-
-var layer = g.selectAll(".layer")
-.data(stack(data))
-.enter().append("g")
-  .attr("class", "layer");
-
-layer.append("path")
-  .attr("class", "area")
-  .style("fill", function(d) { return z(d.key); })
-  .attr("d", area);
-
-layer.filter(function(d) { return d[d.length - 1][1] - d[d.length - 1][0] > 0.01; })
-.append("text")
-  .attr("x", width - 6)
-  .attr("y", function(d) { return y((d[d.length - 1][0] + d[d.length - 1][1]) / 2); })
-  .attr("dy", ".35em")
-  .style("font", "10px sans-serif")
-  .style("text-anchor", "end")
-  .text(function(d) { return d.key; });
-
-g.append("g")
-  .attr("class", "axis axis--x")
-  .attr("transform", "translate(0," + height + ")")
-  .call(d3.axisBottom(x));
-
-g.append("g")
-  .attr("class", "axis axis--y")
-  .call(d3.axisLeft(y).ticks(5));
-});
-
-function type(d, i, columns) {
-d.date = parseDate(d.date);
-for (var i = 1, n = columns.length; i < n; ++i) d[columns[i]] = d[columns[i]] / 100;
-return d;
+//Function for converting CSV values from strings to Dates and numbers
+//We assume one column named 'Date' plus several others that will be converted to ints 
+var rowConverter = function(d, i, cols) {
+  //Initial 'row' object includes only date
+  var row = {
+    month: parseTime(d.MONTH),  //Make a new Date object for each year + month
+  };
+  //Loop once for each vehicle type
+  for (var i = 1; i < cols.length; i++) {
+    var col = cols[i];
+    //If the value exists…
+    if (d[cols[i]]) {
+      row[cols[i]] = +d[cols[i]];  //Convert from string to int
+    } else {  //Otherwise…
+      row[cols[i]] = 0;  //Set to zero
+    }
+  }
+  return row;
 }
+
+//Set up stack method
+var stack = d3.stack()
+    .order(d3.stackOrderDescending);  // <-- Flipped stacking order
+
+//Load in data
+d3.csv("crime_types.csv", rowConverter, function(data) {
+var dataset = data;
+console.log(dataset);
+//Now that we know the column names in the data…
+var keys = dataset.columns;
+keys.shift();  //Remove first column name ('Date')
+stack.keys(keys);  //Stack using what's left (the car names)
+//Data, stacked
+var series = stack(dataset);
+
+// var x = d3.scaleTime()
+//   .domain([new Date(2016, 0, 1), new Date(2016, 11, 31)])
+//   .range([padding, w - padding * 2]);
+  
+// var y = d3.scaleLinear()
+//   .domain([1,5])
+//   .range([h, 0]);
+
+var x = d3.scaleTime()
+.domain([
+ d3.min(dataset, function(d) { return d.month; }),
+ d3.max(dataset, function(d) { return d.month; })
+])
+.range([padding, w - padding * 2]);
+
+// console.log(d3.min(dataset, function(d) { return d.MONTH; }));
+
+y = d3.scaleLinear()
+.domain([
+ 0,
+ d3.max(dataset, function(d) {
+   var sum = 0;
+   //Loops once for each row, to calculate
+   //the total (sum) of sales of all vehicles
+   for (var i = 0; i < keys.length; i++) {
+     sum += d[keys[i]];
+   };
+   return sum;
+ })
+])
+.range([h - padding, padding / 2])
+.nice();
+
+//Define axes
+xAxis = d3.axisBottom()
+      .scale(x)
+      .ticks(12)
+      .tickFormat(formatTime);
+      
+//Define Y axis
+yAxis = d3.axisRight()
+      .scale(y)
+      .ticks(5);
+      
+// Define the div for the tooltip
+var tooltip = d3.select(".stackedAreaChart").append("div")	
+.attr("class", "tooltip")				
+.style("opacity", 0);
+
+//Define area generator
+area = d3.area()
+    .x(function(d) { return x(d.data.month); })
+    .y0(function(d) { return y(d[0]); })
+    .y1(function(d) { return y(d[1]); });
+
+//Create SVG element
+var svg = d3.select(".stackedAreaChart")
+    .append("svg")
+    .attr("width", w)
+    .attr("height", h);
+
+//Create areas
+svg.selectAll("path")
+  .data(series)
+  .enter()
+  .append("path")
+  .attr("class", "area")
+  .attr("d", area)
+  .attr("fill", function(d, i) {
+    return color[i];
+    });   
+
+svg.selectAll('.area')
+    .attr("class", function(d) {
+      console.log(d);
+    })
+    .on("mouseover", function(d) {
+      tooltip.transition()		
+                .duration(200)		
+                .style("opacity", .9);		
+            tooltip	.html(d.key)	
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");
+            })					
+        .on("mouseout", function(d) {		
+            tooltip.transition()		
+                .duration(500)		
+                .style("opacity", 0);	
+        });
+
+//Create axes
+svg.append("g")
+  .attr("class", "axis")
+  .attr("transform", "translate(0," + (h - padding) + ")")
+  .call(xAxis);
+svg.append("g")
+  .attr("class", "axis")
+  .attr("transform", "translate(" + (w - padding * 2) + ",0)")
+  .call(yAxis);
+});
