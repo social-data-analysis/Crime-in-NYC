@@ -1,6 +1,6 @@
 // Define SVG dimensions.
 var w = 600,
-    h = 600;
+    h = 500;
 
 var padding = 40;
 
