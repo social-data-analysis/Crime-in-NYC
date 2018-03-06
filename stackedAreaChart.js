@@ -5,7 +5,7 @@ var padding = 20;
 
 var dataset, xScale, yScale, xAxis, yAxis, area;  //Empty, for now
 
-var color = ["#8C5B79", "#777DA3", "#49A1B4", "#41BFA4", "#88D57F", "#E2E062"]; //d3.scaleOrdinal(d3.schemeCategory10c);
+var color = ["#8C5B79", "#777DA3", "#49A1B4", "#41BFA4", "#88D57F", "#E2E062"]; 
 
 //For converting strings to Dates
 var parseTime = d3.timeParse("%b");
@@ -39,21 +39,12 @@ var stack = d3.stack()
 //Load in data
 d3.csv("crime_types.csv", rowConverter, function(data) {
 var dataset = data;
-console.log(dataset);
 //Now that we know the column names in the data…
 var keys = dataset.columns;
-keys.shift();  //Remove first column name ('Date')
-stack.keys(keys);  //Stack using what's left (the car names)
+keys.shift();  //Remove first column name 
+stack.keys(keys);  //Stack using what's left 
 //Data, stacked
 var series = stack(dataset);
-
-// var x = d3.scaleTime()
-//   .domain([new Date(2016, 0, 1), new Date(2016, 11, 31)])
-//   .range([padding, w - padding * 2]);
-  
-// var y = d3.scaleLinear()
-//   .domain([1,5])
-//   .range([h, 0]);
 
 var x = d3.scaleTime()
 .domain([
@@ -62,7 +53,6 @@ var x = d3.scaleTime()
 ])
 .range([padding, w - padding * 2]);
 
-// console.log(d3.min(dataset, function(d) { return d.MONTH; }));
 
 y = d3.scaleLinear()
 .domain([
@@ -120,13 +110,10 @@ svg.selectAll("path")
     });   
 
 svg.selectAll('.area')
-    .attr("class", function(d) {
-      console.log(d);
-    })
     .on("mouseover", function(d) {
       tooltip.transition()		
                 .duration(200)		
-                .style("opacity", .9);		
+                .style("opacity", .9);
             tooltip	.html(d.key)	
                 .style("left", (d3.event.pageX) + "px")		
                 .style("top", (d3.event.pageY - 28) + "px");

@@ -1,7 +1,28 @@
+function rect(x, y, w, h) {
+  return "M"+[x,y]+" l"+[w,0]+" l"+[0,h]+" l"+[-w,0]+"z";
+}
+
 var w = 600,
     h = 600;
 
 var color = ["#8C5B79", "#777DA3", "#49A1B4", "#41BFA4", "#88D57F", "#E2E062"];
+
+var selection = svg.append("path")
+  .attr("class", "selection")
+  .attr("visibility", "hidden");
+
+var startSelection = function(start) {
+    selection.attr("d", rect(start[0], start[0], 0, 0))
+      .attr("visibility", "visible");
+};
+
+var moveSelection = function(start, moved) {
+  selection.attr("d", rect(start[0], start[1], moved[0]-start[0], moved[1]-start[1]));
+};
+
+var endSelection = function(start, end) {
+selection.attr("visibility", "hidden");
+};
 
 var svg = d3.select("body").select(".map").append("svg")
   .attr("width", w)
@@ -42,3 +63,18 @@ d3.json("boroughs.geojson", function(json) {
         .style("z-index", 3)
      });
 });
+
+svg.selectAll("circle")
+  .on("mousedown", function() {
+    console.log("Here");
+    var subject = d3.select(window), parent = this.parentNode,
+        start = d3.mouse(parent);
+      startSelection(start);
+      subject
+        .on("mousemove.selection", function() {
+          moveSelection(start, d3.mouse(parent));
+        }).on("mouseup.selection", function() {
+          endSelection(start, d3.mouse(parent));
+          subject.on("mousemove.selection", null).on("mouseup.selection", null);
+        });
+  });

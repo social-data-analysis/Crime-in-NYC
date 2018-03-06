@@ -72,9 +72,22 @@ body {
   position: absolute;
   text-align: center;
   padding: 10px;
-  font: 12px sans-serif;
   background: lightsteelblue;
   border: 0px;
   border-radius: 8px;
   pointer-events: none;
+  text-transform: lowercase;
+}
+
+.tooltip::first-letter {
+  text-transform: uppercase;
+}
+
+.selection {
+  fill: #ADD8E6;
+  stroke: #ADD8E6;
+  fill-opacity: 0.3;
+  stroke-opacity: 0.7;
+  stroke-width: 2;
+  stroke-dasharray: 5, 5;
 }
