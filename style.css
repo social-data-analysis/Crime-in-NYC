@@ -91,3 +91,17 @@ body {
   stroke-width: 2;
   stroke-dasharray: 5, 5;
 }
+
+.container {
+  display: flex;
+  margin: 0;
+}
+
+.left-half, .right-half {
+  flex: 1;
+}
+
+.container .subtitle {
+   margin-bottom: 0;
+  text-align: center;
+}
