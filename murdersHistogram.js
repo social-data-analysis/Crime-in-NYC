@@ -1,3 +1,4 @@
+/*
 // Define SVG dimensions.
 var w = 600,
     h = 500;
@@ -127,3 +128,4 @@ function createRectangles(data) {
       .style("font-size", "15px")
       .text("Count");
 }
+*/

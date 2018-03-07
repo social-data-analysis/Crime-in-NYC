@@ -102,6 +102,18 @@ body {
 }
 
 .container .subtitle {
-   margin-bottom: 0;
+  margin: 0;
   text-align: center;
+}
+
+.brushed {
+  fill: #E2E062;
+  /* stroke: black;
+  stroke-width: 1px; */
+  opacity: 1.0;
+}
+
+.non_brushed {
+  fill: black;
+  opacity: 0.6;
 }
